@@ -334,9 +334,10 @@ function renderHistory() {
 
 // ---------- 出發點 ----------
 
-function setOrigin(origin) {
+function setOrigin(origin, { fromGps = false } = {}) {
   state.origin = origin;
-  if (settings.region === 'auto') store.save('lastRegion', detectRegion(origin));
+  // 只用 GPS 位置記住「平常在哪個地區」；手動輸入的可能是在規劃別處的行程
+  if (fromGps) store.save('lastRegion', detectRegion(origin));
   renderOrigin();
   // 出發點換到別的地區時，交通方式與類型也跟著換
   renderControls();
@@ -356,7 +357,7 @@ function locate() {
           lat: pos.coords.latitude,
           lng: pos.coords.longitude,
           label: t('origin.current', { accuracy: i18n.formatDistance(pos.coords.accuracy / 1000) }),
-        });
+        }, { fromGps: true });
         resolve(true);
       },
       (err) => {

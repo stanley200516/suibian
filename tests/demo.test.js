@@ -63,6 +63,25 @@ test('示範資料：店名與類型名稱依語言產生', async () => {
   assert.equal(zh.lat, en.lat, '同一個地點，只有名稱不同');
 });
 
+test('示範資料：店名和地址像出發點當地的店，不是看介面語言', async () => {
+  const tokyo = { lat: 35.6812, lng: 139.7671 };
+  const nyc = { lat: 40.758, lng: -73.9855 };
+  const near = (center) => ({ center, origin: center, radiusM: 2000, types: ['restaurant'], rankBy: 'distance' });
+
+  const zhInTokyo = await createDemoProvider({ lang: 'zh-TW' }).searchNearby(near(tokyo));
+  assert.ok(zhInTokyo.length > 0);
+  for (const p of zhInTokyo) {
+    assert.match(p.address, /番地（虛構）$/, `中文介面在東京：${p.address}`);
+    assert.doesNotMatch(p.name, /阿嬤|老王|巷口|滷肉飯/, p.name);
+  }
+
+  const jaInTaipei = await createDemoProvider({ lang: 'ja' }).searchNearby(near(origin));
+  for (const p of jaInTaipei) assert.match(p.address, /號（架空）$/, `日文介面在台北：${p.address}`);
+
+  const zhInNyc = await createDemoProvider({ lang: 'zh-TW' }).searchNearby(near(nyc));
+  for (const p of zhInNyc) assert.match(p.address, /^\d+ .+（虛構）$/, `中文介面在紐約：${p.address}`);
+});
+
 test('示範資料：每個地區的每個類型都找得到地點', async () => {
   const demo = createDemoProvider();
   for (const code of Object.keys(REGIONS)) {

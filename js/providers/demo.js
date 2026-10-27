@@ -1,6 +1,7 @@
 // 示範資料：在出發點周圍產生虛構的店家與景點，讓沒有 API key 時也能完整試用。
-// 店名依介面語言產生。介面與 google.js 相同。
+// 店名、街道依出發點所在地區（像當地的店），類型名稱依介面語言。介面與 google.js 相同。
 import { haversineKm, offsetKm } from '../geo.js';
+import { detectRegion } from '../regions.js';
 
 function mulberry32(seed) {
   return () => {
@@ -102,35 +103,40 @@ const TRIP_KINDS = [
   { name: ['溫泉', 'Hot Springs', '温泉'], label: ['溫泉', 'Spa', '温泉'], types: ['spa'], hours: 'onsen' },
 ];
 
-const NAMES = {
-  'zh-TW': {
+// 店名前綴、街道、地址格式：依出發點所在地區
+const FLAVORS = {
+  TW: {
     i: 0,
     food: ['阿嬤', '老王', '巷口', '福記', '小林', '永和', '一品', '好味', '金春', '光復', '阿忠', '大橋頭', '三代', '佳佳', '明月', '春水', '老張', '晴天', '小日子', '慢慢', '森林', '初心', '轉角', '日日'],
     trip: ['大安', '象山', '淡水', '北投', '陽明', '華山', '松山', '內湖', '碧潭', '貓空', '大溪', '三峽', '九份', '鶯歌', '十分', '烏來', '深坑', '關渡', '八里', '金山'],
     streets: ['中山路', '民生路', '復興路', '和平東路', '信義路', '忠孝東路', '光復南路', '永康街', '師大路', '南京東路', '民權東路', '承德路'],
     join: (a, b) => `${a}${b}`,
-    address: (street, n) => `${street}${n} 號（虛構）`,
+    address: (street, n) => `${street}${n} 號`,
   },
-  en: {
+  INTL: {
     i: 1,
     food: ["Joe's", 'Golden', 'Blue Door', 'Corner', 'Little', 'Lucky', 'Sunny', 'Maple', 'Harbor', 'Old Town', "Mama's", 'Green Leaf', 'Red Lantern', 'Main Street', 'Oak', 'Silver', 'Happy', 'Urban', 'River', 'Sunset'],
     trip: ['Riverside', 'Hillcrest', 'Lakeview', 'Pine Ridge', 'Harbor', 'Westfield', 'Cedar', 'Bayside', 'Sunrise', 'Greenway', 'Northgate', 'Willow', 'Stone Bridge', 'Eastside', 'Highland', 'Meadow', 'Grand', 'Union', 'Lighthouse', 'Maple Hill'],
     streets: ['Main St', 'Oak Ave', 'Maple St', 'Park Ave', 'Elm St', '2nd St', 'Broadway', 'Pine St', 'Cedar Rd', 'Lake Dr', 'Hill Rd', 'Market St'],
     join: (a, b) => `${a} ${b}`,
-    address: (street, n) => `${n} ${street} (fictional)`,
+    address: (street, n) => `${n} ${street}`,
   },
-  ja: {
+  JP: {
     i: 2,
     food: ['さくら', 'まるや', '一番', '福屋', '竹乃', '大黒', '花月', 'みどり', '山田', 'ひなた', '縁', '和楽', '金星', '駅前', '横丁', 'はなまる', 'こばやし', '小町', '月見', '風月'],
     trip: ['高尾', '鎌倉', '箱根', '日光', '上野', '浅草', '代々木', 'お台場', '多摩', '奥多摩', '秩父', '江ノ島', '井の頭', '葛西', '横浜', '川越', '吉祥寺', '品川', '池袋', '新宿'],
     streets: ['本町', '中央通り', '駅前通り', '桜町', '栄町', '緑町', '旭町', '大通り', '仲町', '新町', '若葉町', '港町'],
     join: (a, b) => `${a}${b}`,
-    address: (street, n) => `${street}${n}番地（架空）`,
+    address: (street, n) => `${street}${n}番地`,
   },
 };
 
+// 類型名稱、地點名稱用的索引（[中文, 英文, 日文]）與「虛構」標示：依介面語言
+const LANG_INDEX = { 'zh-TW': 0, en: 1, ja: 2 };
+const FICTIONAL = { 'zh-TW': '（虛構）', en: ' (fictional)', ja: '（架空）' };
+
 /** 距離採對數分布：越靠近出發點越密集，比較像真實的市區 */
-function generate(anchor, rand, names, { count, kinds, prefixes, minKm, maxKm, popular, idPrefix }) {
+function generate(anchor, rand, { flavor, labelIndex, fictional }, { count, kinds, prefixes, minKm, maxKm, popular, idPrefix }) {
   const out = [];
   const logMin = Math.log(minKm);
   const logMax = Math.log(maxKm);
@@ -142,17 +148,17 @@ function generate(anchor, rand, names, { count, kinds, prefixes, minKm, maxKm, p
     const pos = offsetKm(anchor, r * Math.cos(theta), r * Math.sin(theta));
     // 約 8% 的地點沒有營業時間資料
     const hoursKey = rand() < 0.08 ? 'unknown' : kind.hours;
-    const street = names.streets[Math.floor(rand() * names.streets.length)];
+    const street = flavor.streets[Math.floor(rand() * flavor.streets.length)];
     out.push({
       id: `demo-${idPrefix}${i}`,
-      name: names.join(prefix, kind.name[names.i]),
+      name: flavor.join(prefix, kind.name[flavor.i]),
       lat: pos.lat,
       lng: pos.lng,
-      address: names.address(street, 1 + Math.floor(rand() * 300)),
+      address: flavor.address(street, 1 + Math.floor(rand() * 300)) + fictional,
       rating: Math.round((3.2 + rand() * 1.7) * 10) / 10,
       ratingCount: Math.round(Math.exp(Math.log(5) + rand() * Math.log(popular))),
       priceLevel: kind.price ?? null,
-      typeLabel: kind.label[names.i],
+      typeLabel: kind.label[labelIndex],
       types: kind.types,
       hours: HOURS[hoursKey](),
       // 虛構店家就在使用者附近，營業時間跟著裝置時區
@@ -185,7 +191,8 @@ const KNOWN_PLACES = [
 const normalizeText = (s) => s.toLowerCase().replace(/臺/g, '台').replace(/[\s.・]/g, '');
 
 export function createDemoProvider({ lang = 'zh-TW' } = {}) {
-  const names = NAMES[lang] ?? NAMES.en;
+  const labelIndex = LANG_INDEX[lang] ?? LANG_INDEX.en;
+  const fictional = FICTIONAL[lang] ?? FICTIONAL.en;
   let universe = null;
 
   function ensureUniverse(origin) {
@@ -193,9 +200,10 @@ export function createDemoProvider({ lang = 'zh-TW' } = {}) {
     if (universe?.key === key) return universe.places;
     const seed = hashString(key);
     const rand = mulberry32(seed);
+    const style = { flavor: FLAVORS[detectRegion(origin)], labelIndex, fictional };
     const places = [
-      ...generate(origin, rand, names, { count: 420, kinds: FOOD_KINDS, prefixes: names.food, minKm: 0.05, maxKm: 30, popular: 1500, idPrefix: `${seed}-f` }),
-      ...generate(origin, rand, names, { count: 260, kinds: TRIP_KINDS, prefixes: names.trip, minKm: 0.3, maxKm: 50, popular: 8000, idPrefix: `${seed}-t` }),
+      ...generate(origin, rand, style, { count: 420, kinds: FOOD_KINDS, prefixes: style.flavor.food, minKm: 0.05, maxKm: 30, popular: 1500, idPrefix: `${seed}-f` }),
+      ...generate(origin, rand, style, { count: 260, kinds: TRIP_KINDS, prefixes: style.flavor.trip, minKm: 0.3, maxKm: 50, popular: 8000, idPrefix: `${seed}-t` }),
     ];
     universe = { key, places };
     return places;
@@ -223,10 +231,10 @@ export function createDemoProvider({ lang = 'zh-TW' } = {}) {
       const hit = KNOWN_PLACES.find((p) =>
         [...p.label, ...p.aliases].map(normalizeText).some((a) => query.includes(a) || (query.length >= 2 && a.includes(query))),
       );
-      return hit ? { lat: hit.lat, lng: hit.lng, label: hit.label[names.i] } : null;
+      return hit ? { lat: hit.lat, lng: hit.lng, label: hit.label[labelIndex] } : null;
     },
 
-    knownPlaces: KNOWN_PLACES.map((p) => p.label[names.i]),
+    knownPlaces: KNOWN_PLACES.map((p) => p.label[labelIndex]),
 
     photoUrl() {
       return null;
