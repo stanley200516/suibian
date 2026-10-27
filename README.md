@@ -17,6 +17,8 @@
 
 沒有 API key 時會使用 **OpenStreetMap 的免費資料**：店家都是真的，打開就能用，只是資料比 Google 少（見下方「資料來源」）。
 
+後續規劃、收費方案與待辦見 [ROADMAP.md](ROADMAP.md)。
+
 ## 快速開始
 
 需要 Node.js 18 以上，不用安裝任何套件。

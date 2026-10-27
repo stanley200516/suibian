@@ -2,3 +2,5 @@
 node_modules/
 # 本機開發用的 Claude 設定
 .claude/
+# 私人商業文件（另一個私人 repo：stanley200516/suibian-business），不要推到公開 repo
+private/
