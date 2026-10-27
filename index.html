@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>隨便啦｜吃什麼・去哪玩</title>
+    <meta name="description" content="依目前位置、交通方式、時間與營業時間，隨機幫你決定吃什麼、放假去哪玩。" />
+    <meta name="theme-color" content="#FAF6F1" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#15110E" media="(prefers-color-scheme: dark)" />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="icon" href="icons/icon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="隨便啦" />
+    <link rel="stylesheet" href="styles.css" />
+    <script type="module" src="js/app.js"></script>
+  </head>
+  <!-- data-i18n*：由 js/app.js 依語言填入文字；這裡的中文只是載入前的預設值 -->
+  <body data-mode="food">
+    <div class="app">
+      <header class="topbar">
+        <div class="brand">
+          <img src="icons/icon.svg" alt="" width="40" height="40" />
+          <div>
+            <h1 data-i18n="app.name">隨便啦</h1>
+            <p data-i18n="app.tagline">不知道吃什麼、去哪玩？抽一個就對了</p>
+          </div>
+        </div>
+        <button id="settingsBtn" class="icon-btn" type="button" aria-label="設定" data-i18n-aria-label="settings.open">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="3" />
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+          </svg>
+        </button>
+      </header>
+
+      <p id="demoBanner" class="banner" hidden></p>
+
+      <div class="mode-switch" role="group" aria-label="模式" data-i18n-aria-label="mode.label">
+        <button type="button" data-mode="food" aria-pressed="true"><span aria-hidden="true">🍜</span> <span data-i18n="mode.food">吃什麼</span></button>
+        <button type="button" data-mode="trip" aria-pressed="false"><span aria-hidden="true">🏞️</span> <span data-i18n="mode.trip">去哪玩</span></button>
+      </div>
+
+      <main class="panel">
+        <section class="card">
+          <h2 data-i18n="origin.title">從哪出發</h2>
+          <div class="origin">
+            <div class="origin-status">
+              <span id="originDot" class="dot"></span>
+              <span id="originLabel">還沒取得位置</span>
+            </div>
+            <button id="locateBtn" type="button" class="btn-ghost small" data-i18n="origin.useCurrent">📍 目前位置</button>
+          </div>
+          <form id="originForm" class="origin-form">
+            <input
+              id="originInput"
+              type="search"
+              placeholder="或輸入地點，例如：台北車站"
+              data-i18n-placeholder="origin.placeholder"
+              aria-label="出發地點"
+              data-i18n-aria-label="origin.inputLabel"
+              enterkeyhint="search"
+              autocomplete="off"
+            />
+            <button type="submit" class="btn-ghost" data-i18n="origin.set">設定</button>
+          </form>
+        </section>
+
+        <section class="card">
+          <h2 data-i18n="travel.title">怎麼去</h2>
+          <div id="travelChips" class="chips" role="radiogroup" aria-label="怎麼去" data-i18n-aria-label="travel.title"></div>
+          <p id="regionHint" class="hint"></p>
+        </section>
+
+        <section class="card">
+          <div class="card-head">
+            <h2><label for="minutesRange" data-i18n="time.title">多久內到</label></h2>
+            <output id="minutesOut" for="minutesRange"></output>
+          </div>
+          <input id="minutesRange" type="range" />
+          <p id="radiusHint" class="hint"></p>
+        </section>
+
+        <section class="card">
+          <h2 data-i18n="when.title">營業時間</h2>
+          <div id="whenChips" class="segmented" role="radiogroup" aria-label="營業時間" data-i18n-aria-label="when.title"></div>
+          <div id="whenAtRow" class="when-at" hidden>
+            <label for="whenAt" data-i18n="when.departure">出發時間</label>
+            <input id="whenAt" type="datetime-local" />
+          </div>
+          <label id="unknownRow" class="check">
+            <input id="includeUnknown" type="checkbox" />
+            <span data-i18n="when.includeUnknown">沒有營業時間資料的也列入</span>
+          </label>
+        </section>
+
+        <section class="card">
+          <h2 id="catTitle">想吃哪一類</h2>
+          <div id="catChips" class="chips" role="group" aria-labelledby="catTitle"></div>
+        </section>
+
+        <section class="card">
+          <h2 data-i18n="rating.title">Google 評分</h2>
+          <div id="ratingChips" class="chips" role="radiogroup" aria-label="Google 評分" data-i18n-aria-label="rating.title"></div>
+        </section>
+
+        <section id="historyCard" class="card" hidden>
+          <div class="card-head">
+            <h2 data-i18n="history.title">最近抽過</h2>
+            <button id="clearHistoryBtn" type="button" class="link-btn" data-i18n="history.clear">清除</button>
+          </div>
+          <ol id="historyList" class="history-list"></ol>
+        </section>
+      </main>
+
+      <div class="cta-bar">
+        <button id="goBtn" type="button" class="cta">幫我決定！</button>
+      </div>
+    </div>
+
+    <dialog id="resultDialog" class="sheet" aria-labelledby="resultTitle">
+      <div class="sheet-inner">
+        <button type="button" class="sheet-close icon-btn" data-close aria-label="關閉" data-i18n-aria-label="result.close">✕</button>
+        <div id="resultBody"></div>
+      </div>
+    </dialog>
+
+    <dialog id="settingsDialog" class="sheet" aria-labelledby="settingsTitle">
+      <form id="settingsForm" class="sheet-inner">
+        <button type="button" class="sheet-close icon-btn" data-close aria-label="關閉" data-i18n-aria-label="result.close">✕</button>
+        <h2 id="settingsTitle" class="sheet-title" data-i18n="settings.title">設定</h2>
+        <div class="field-grid">
+          <label class="field">
+            <span data-i18n="settings.language">語言</span>
+            <select id="langSelect"></select>
+          </label>
+          <label class="field">
+            <span data-i18n="settings.region">地區</span>
+            <select id="regionSelect"></select>
+          </label>
+          <label class="field">
+            <span data-i18n="settings.units">距離單位</span>
+            <select id="unitsSelect"></select>
+          </label>
+        </div>
+        <hr class="divider" />
+        <label class="field">
+          <span data-i18n="settings.apiKey">Google Maps API key</span>
+          <input id="apiKeyInput" type="text" autocomplete="off" spellcheck="false" placeholder="AIza…" />
+        </label>
+        <p class="hint" data-i18n="settings.apiKeyHint"></p>
+        <div class="row">
+          <button type="submit" class="cta small" data-i18n="settings.save">儲存並重新載入</button>
+          <button id="clearKeyBtn" type="button" class="btn-ghost" data-i18n="settings.useDemo">改用示範資料</button>
+        </div>
+        <p id="providerStatus" class="hint"></p>
+      </form>
+    </dialog>
+
+    <div id="toast" class="toast" popover="manual" role="status"></div>
+  </body>
+</html>

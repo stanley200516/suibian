@@ -1,0 +1,749 @@
+:root {
+  color-scheme: light dark;
+  --bg: #faf6f1;
+  --surface: #ffffff;
+  --surface-2: #f3ede6;
+  --text: #2b2420;
+  --muted: #74685f;
+  --border: #e9dfd5;
+  --accent: #d4461a;
+  --accent-soft: #fce8df;
+  --on-accent: #ffffff;
+  --ok: #2e9e5b;
+  --star: #e3a008;
+  --shadow: 0 1px 2px rgb(60 30 10 / 0.05), 0 6px 18px rgb(60 30 10 / 0.05);
+  --radius: 18px;
+  --font: -apple-system, BlinkMacSystemFont, 'PingFang TC', 'Noto Sans TC', 'Microsoft JhengHei', system-ui, sans-serif;
+}
+
+body[data-mode='trip'] {
+  --accent: #0f7a65;
+  --accent-soft: #ddf2ec;
+}
+
+/* 依語言換字型，避免日文漢字顯示成繁中字形 */
+:root:lang(ja) {
+  --font: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', 'Yu Gothic', Meiryo, system-ui, sans-serif;
+}
+
+:root:lang(en) {
+  --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', system-ui, sans-serif;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #15110e;
+    --surface: #211b17;
+    --surface-2: #2b241f;
+    --text: #f4ede7;
+    --muted: #a99b90;
+    --border: #3a312b;
+    --accent: #f06a3c;
+    --accent-soft: #42251b;
+    --on-accent: #1a0f0a;
+    --ok: #4cc47e;
+    --shadow: none;
+  }
+  body[data-mode='trip'] {
+    --accent: #2db896;
+    --accent-soft: #15362e;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 16px/1.5 var(--font);
+  -webkit-tap-highlight-color: transparent;
+  transition: background-color 0.2s;
+}
+
+button,
+input {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--accent) 55%, transparent);
+  outline-offset: 2px;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.app {
+  max-width: 520px;
+  min-height: 100dvh;
+  margin: 0 auto;
+  padding: env(safe-area-inset-top) 16px 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ---------- 頂部 ---------- */
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 0 14px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.brand img {
+  flex: none;
+  border-radius: 10px;
+}
+
+.brand h1 {
+  margin: 0;
+  font-size: 22px;
+  line-height: 1.2;
+  letter-spacing: 0.04em;
+}
+
+.brand p {
+  margin: 0;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.icon-btn {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+}
+
+.banner {
+  margin: 0 0 12px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: var(--surface-2);
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.link-btn {
+  padding: 0 2px;
+  border: 0;
+  background: none;
+  color: var(--accent);
+  font-size: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.mode-switch {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  margin-bottom: 12px;
+  padding: 4px;
+  border-radius: 14px;
+  background: var(--surface-2);
+}
+
+.mode-switch button {
+  padding: 10px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--muted);
+  font-weight: 600;
+  font-size: 16px;
+  transition: background-color 0.15s, color 0.15s;
+}
+
+.mode-switch button[aria-pressed='true'] {
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: var(--shadow);
+}
+
+/* ---------- 條件卡片 ---------- */
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-bottom: 12px;
+}
+
+.card {
+  padding: 14px 16px 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+
+.card h2 {
+  margin: 0 0 10px;
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.card-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.card-head output {
+  color: var(--accent);
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.chip {
+  min-height: 40px;
+  padding: 8px 14px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.2;
+  transition: background-color 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.chip[aria-checked='true'],
+.chip[aria-pressed='true'] {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--on-accent);
+}
+
+.segmented {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+}
+
+.segmented .chip {
+  padding: 10px 4px;
+  border-radius: 12px;
+  text-align: center;
+}
+
+input[type='range'] {
+  width: 100%;
+  height: 28px;
+  margin: 4px 0 0;
+  accent-color: var(--accent);
+}
+
+.hint {
+  margin: 6px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.origin {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.origin-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  font-weight: 500;
+}
+
+#originLabel {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.dot {
+  flex: none;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--border);
+}
+
+.dot.ok {
+  background: var(--ok);
+}
+
+.dot.busy {
+  background: var(--star);
+  animation: pulse 1s ease-in-out infinite;
+}
+
+.origin-form {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+input[type='search'],
+input[type='text'],
+input[type='datetime-local'] {
+  flex: 1;
+  min-width: 0;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface-2);
+  font-size: 16px;
+}
+
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+  color: var(--text);
+  font-size: 15px;
+  font-weight: 600;
+  white-space: nowrap;
+  text-decoration: none;
+}
+
+.btn-ghost.small {
+  padding: 8px 12px;
+  font-size: 14px;
+}
+
+.check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.check input {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  accent-color: var(--accent);
+}
+
+.when-at {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+  font-size: 14px;
+}
+
+.history-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.history-list a {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+  text-decoration: none;
+}
+
+.history-list li:last-child a {
+  border-bottom: 0;
+}
+
+.history-list small {
+  flex: none;
+  color: var(--muted);
+}
+
+/* ---------- 主按鈕 ---------- */
+
+.cta-bar {
+  position: sticky;
+  bottom: 0;
+  margin-top: auto;
+  padding: 12px 0 calc(12px + env(safe-area-inset-bottom));
+  background: linear-gradient(to top, var(--bg) 75%, transparent);
+}
+
+.cta {
+  display: block;
+  width: 100%;
+  padding: 16px;
+  border: 0;
+  border-radius: 16px;
+  background: var(--accent);
+  color: var(--on-accent);
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.2;
+  text-align: center;
+  text-decoration: none;
+  box-shadow: 0 6px 20px color-mix(in srgb, var(--accent) 30%, transparent);
+  transition: transform 0.1s, opacity 0.15s;
+}
+
+.cta:active {
+  transform: scale(0.98);
+}
+
+.cta:disabled {
+  opacity: 0.6;
+}
+
+.cta.small {
+  padding: 12px 16px;
+  font-size: 16px;
+}
+
+/* ---------- 底部面板 ---------- */
+
+dialog.sheet {
+  width: 100%;
+  max-width: 520px;
+  max-height: 92dvh;
+  margin: auto auto 0;
+  padding: 0;
+  border: 0;
+  border-radius: 24px 24px 0 0;
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: 0 -8px 40px rgb(0 0 0 / 0.2);
+}
+
+dialog.sheet[open] {
+  animation: slide-up 0.28s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+dialog.sheet::backdrop {
+  background: rgb(20 10 5 / 0.45);
+}
+
+@media (min-width: 640px) {
+  dialog.sheet {
+    margin: auto;
+    border-radius: 24px;
+  }
+}
+
+.sheet-inner {
+  position: relative;
+  max-height: 92dvh;
+  overflow: auto;
+  padding: 20px 20px calc(20px + env(safe-area-inset-bottom));
+}
+
+.sheet-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 1;
+}
+
+.sheet-title {
+  margin: 4px 0 16px;
+  font-size: 20px;
+}
+
+.field {
+  display: grid;
+  gap: 6px;
+  font-weight: 600;
+}
+
+.field input,
+.field select {
+  font-weight: 400;
+}
+
+.field-grid {
+  display: grid;
+  gap: 12px;
+}
+
+select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface-2);
+  font-size: 16px;
+}
+
+.divider {
+  margin: 18px 0 16px;
+  border: 0;
+  border-top: 1px solid var(--border);
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.row .cta {
+  width: auto;
+  flex: 1;
+}
+
+/* ---------- 抽選動畫 ---------- */
+
+.spin {
+  padding: 48px 8px 56px;
+  text-align: center;
+}
+
+.spin-label {
+  margin: 0 0 14px;
+  color: var(--muted);
+}
+
+.spin-name {
+  min-height: 1.4em;
+  margin: 0;
+  font-size: 28px;
+  font-weight: 800;
+}
+
+.spin-name.waiting {
+  display: inline-block;
+  animation: roll 0.8s linear infinite;
+}
+
+.spin-name.landed {
+  color: var(--accent);
+  animation: pop 0.35s ease-out;
+}
+
+/* ---------- 結果 ---------- */
+
+.result {
+  animation: fade-in 0.25s ease-out;
+}
+
+.result-photo {
+  position: relative;
+  display: grid;
+  place-items: center;
+  aspect-ratio: 16 / 9;
+  margin: -20px -20px 16px;
+  overflow: hidden;
+  border-radius: 24px 24px 0 0;
+  background: var(--accent-soft);
+  font-size: 64px;
+}
+
+.result-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.photo-credit {
+  position: absolute;
+  right: 8px;
+  bottom: 6px;
+  padding: 2px 6px;
+  border-radius: 6px;
+  background: rgb(0 0 0 / 0.5);
+  color: #fff;
+  font-size: 11px;
+  text-decoration: none;
+}
+
+.eyebrow {
+  margin: 0 0 2px;
+  color: var(--accent);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.result-title {
+  margin: 0 0 4px;
+  font-size: 26px;
+  line-height: 1.25;
+}
+
+.meta {
+  margin: 0 0 14px;
+  color: var(--muted);
+}
+
+.facts {
+  display: grid;
+  gap: 10px;
+  margin: 0 0 18px;
+  padding: 0;
+  list-style: none;
+}
+
+.facts li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.facts .ico {
+  flex: none;
+  width: 22px;
+  text-align: center;
+}
+
+.facts .star {
+  color: var(--star);
+}
+
+.facts small {
+  display: block;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.actions {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.actions.secondary {
+  grid-template-columns: 1fr 1fr;
+}
+
+.foot {
+  margin: 14px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+  text-align: center;
+}
+
+.empty {
+  padding: 24px 4px 4px;
+  text-align: center;
+}
+
+.empty .big {
+  font-size: 48px;
+}
+
+.empty h2 {
+  margin: 8px 0;
+  font-size: 20px;
+}
+
+.empty ul {
+  margin: 0 0 20px;
+  padding: 0 0 0 20px;
+  color: var(--muted);
+  text-align: left;
+}
+
+.empty .stack {
+  display: grid;
+  gap: 8px;
+}
+
+/* ---------- 提示訊息 ---------- */
+
+.toast {
+  position: fixed;
+  inset: auto auto calc(100px + env(safe-area-inset-bottom)) 50%;
+  transform: translateX(-50%);
+  max-width: calc(100% - 32px);
+  margin: 0;
+  padding: 10px 16px;
+  border: 0;
+  border-radius: 12px;
+  background: var(--text);
+  color: var(--bg);
+  font-size: 14px;
+  box-shadow: 0 6px 24px rgb(0 0 0 / 0.2);
+}
+
+@keyframes slide-up {
+  from {
+    transform: translateY(40px);
+    opacity: 0;
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+@keyframes pop {
+  50% {
+    transform: scale(1.08);
+  }
+}
+
+@keyframes roll {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes pulse {
+  50% {
+    opacity: 0.35;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}

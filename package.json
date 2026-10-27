@@ -1,0 +1,11 @@
+{
+  "name": "suibian",
+  "version": "0.1.0",
+  "private": true,
+  "description": "隨便啦：依位置、交通方式、時間與營業時間，隨機決定吃什麼、去哪玩",
+  "type": "module",
+  "scripts": {
+    "dev": "node scripts/serve.mjs",
+    "test": "node --test \"tests/*.test.js\""
+  }
+}

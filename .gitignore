@@ -1,0 +1,4 @@
+.DS_Store
+node_modules/
+# 本機開發用的 Claude 設定
+.claude/
