@@ -98,7 +98,9 @@ export function createGoogleProvider(apiKey, { language = 'en' } = {}) {
 
   return {
     id: 'google',
-    isDemo: false,
+    hasRatings: true,
+    // 每次搜尋最多 20 筆
+    resultLimit: 20,
 
     async searchNearby({ center, radiusM, types, rankBy, regionCode }) {
       const { Place, SearchNearbyRankPreference } = await places();

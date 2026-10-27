@@ -6,7 +6,7 @@ export default {
   'app.description': '依目前位置、交通方式、時間與營業時間，隨機幫你決定吃什麼、放假去哪玩。',
 
   'settings.open': '設定',
-  'banner.demo': '目前是示範資料（虛構店家）。到{link}填入 Google API key，就會換成真實地點。',
+  'banner.osm': '目前使用 OpenStreetMap 的免費資料：店家是真的，但很多店沒有營業時間和評分。到{link}填入 Google API key，可以換成更完整的資料。',
   'banner.link': '設定',
 
   'mode.label': '模式',
@@ -23,7 +23,6 @@ export default {
   'origin.set': '設定',
   'origin.changed': '出發點改為：{label}',
   'origin.notFound': '找不到這個地點，換個說法試試',
-  'origin.demoOnly': '示範模式只認得：{places}',
   'origin.unsupported': '這個瀏覽器不支援定位，請改輸入地點',
   'origin.denied': '沒有定位權限，請允許定位或改輸入地點',
   'origin.failed': '定位失敗，請改輸入地點',
@@ -101,14 +100,12 @@ export default {
 
   'history.title': '最近抽過',
   'history.clear': '清除',
-  'history.demo': '（示範）',
 
   'go.food': '幫我決定吃什麼！',
   'go.trip': '幫我決定去哪玩！',
 
   'result.close': '關閉',
   'result.loading': '在附近找找…',
-  'result.loadingDemo': '在附近找找（示範資料）…',
   'result.spinning': '從 {n} 個地方裡抽一個…',
   'result.eyebrow.food': '今天就吃這裡！',
   'result.eyebrow.trip': '今天就去這裡！',
@@ -129,7 +126,7 @@ export default {
   'result.veto': '🙅 不要這間',
   'result.vetoed': '好，不去「{name}」',
   'result.foot': '從 {n} 個符合條件的地點中抽出・{source}',
-  'result.sourceDemo': '示範資料（虛構）',
+  'result.sourceOsm': '資料來源：© OpenStreetMap 貢獻者',
   'result.sourceGoogle': '資料來源：Google Maps',
 
   'hours.day': '{weekday} {ranges}',
@@ -156,6 +153,9 @@ export default {
   'error.googleQuota': 'Google API 用量已達上限，請稍後再試或檢查帳單設定。',
   'error.googleLoad': '無法載入 Google Maps，請檢查網路連線。',
   'error.googleGeneric': 'Google 搜尋失敗：{message}',
+  'error.osmBusy': 'OpenStreetMap 伺服器忙碌中，請稍等幾秒再試。',
+  'error.osmNetwork': '連不上 OpenStreetMap，請檢查網路連線。',
+  'error.osmGeneric': 'OpenStreetMap 搜尋失敗：{message}',
 
   'share.food': '今天就吃「{name}」吧！',
   'share.trip': '今天就去「{name}」吧！',
@@ -173,8 +173,8 @@ export default {
   'settings.apiKey': 'Google Maps API key',
   'settings.apiKeyHint': 'key 只會存在這台裝置的瀏覽器。需要在 Google Cloud 啟用 Maps JavaScript API 與 Places API (New)，並把 key 限制在你的網域，詳細步驟請看 README。',
   'settings.save': '儲存並重新載入',
-  'settings.useDemo': '改用示範資料',
-  'settings.statusDemo': '目前使用：示範資料（虛構店家）',
+  'settings.useOsm': '改用 OpenStreetMap（免費）',
+  'settings.statusOsm': '目前使用：OpenStreetMap（免費，真實店家）',
   'settings.statusGoogle': '目前使用：Google Places（真實資料）',
   'settings.statusGoogleConfig': '目前使用：Google Places（真實資料），key 來自 app-config.js',
 

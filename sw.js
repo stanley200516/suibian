@@ -1,5 +1,5 @@
 // 網路優先：有網路時永遠拿最新版，離線時才用快取（只快取自己網域的 app 檔案）
-const CACHE = 'suibian-v2';
+const CACHE = 'suibian-v3';
 const SHELL = [
   './',
   'index.html',
@@ -17,7 +17,8 @@ const SHELL = [
   'js/picker.js',
   'js/regions.js',
   'js/storage.js',
-  'js/providers/demo.js',
+  'js/providers/osm.js',
+  'js/providers/osm-hours.js',
   'js/providers/google.js',
   'icons/icon.svg',
   'icons/icon-192.png',

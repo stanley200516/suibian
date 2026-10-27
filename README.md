@@ -15,7 +15,7 @@
 - **在地化格式**：距離單位（公里／英里）、12／24 小時制、星期寫法都依語言和地區調整
 - **PWA**：可加到手機主畫面，像 App 一樣全螢幕開啟
 
-沒有 API key 時會使用**示範資料**（虛構店家），可以完整試用所有流程。
+沒有 API key 時會使用 **OpenStreetMap 的免費資料**：店家都是真的，打開就能用，只是資料比 Google 少（見下方「資料來源」）。
 
 ## 快速開始
 
@@ -30,6 +30,24 @@ npm run dev
 ```bash
 npm test
 ```
+
+## 資料來源
+
+| | OpenStreetMap（預設） | Google Places（填入 key 後） |
+|---|---|---|
+| 費用 | 免費，不用申請 | 要綁信用卡，每月有免費額度 |
+| 店家 | 真實店家，市區很齊全 | 最齊全 |
+| 營業時間 | 只有部分店家有（新宿站周邊約 1/4） | 大部分都有 |
+| 評分、照片 | 沒有（評分條件會自動隱藏） | 有 |
+| 穩定度 | 免費伺服器偶爾過載，會變慢 | 穩定 |
+
+OpenStreetMap 的搜尋方式：
+
+1. 先用 **Overpass API**，一次可拿到範圍內幾百個地點。
+2. Overpass 失敗、逾時（12 秒）或回應不完整時，改用 **Nominatim**。每種類型最多 40 個地點，每次查詢間隔 1 秒以上（遵守 Nominatim 使用規範），之後 5 分鐘內都直接用 Nominatim。
+3. 吃飯的範圍超過 3 公里、出去玩超過 30 公里時，隨機取範圍內的一塊來查，避免查詢太重。
+
+資料 © OpenStreetMap 貢獻者，採用 [ODbL](https://www.openstreetmap.org/copyright) 授權，結果畫面有標示來源。
 
 ## 申請 Google Maps API key
 
@@ -81,7 +99,7 @@ npm test
 - Google 回傳的店名、類型名稱也會跟著介面語言。
 - App 名稱目前是「隨便啦」／「Whatever」／「なんでもいい」，在各語系檔的 `app.name` 修改。`manifest.webmanifest`（加到主畫面時的名稱）只能有一種語言，目前是中文。
 
-**新增語言**：在 `js/locales/` 複製一份 `en.js` 翻譯，然後在 `js/i18n.js` 的 `LANGS` 和 `detectLang` 加上它；示範資料的店名在 `js/providers/demo.js` 的 `NAMES`。
+**新增語言**：在 `js/locales/` 複製一份 `en.js` 翻譯，然後在 `js/i18n.js` 的 `LANGS` 和 `detectLang` 加上它；OpenStreetMap 的類型名稱在 `js/providers/osm.js` 的 `CUISINE_LABELS`、`TAG_LABELS`。
 
 ### 地區
 
@@ -97,6 +115,9 @@ npm test
 **新增地區**：在 `js/regions.js` 的 `REGIONS` 加一組設定、在 `BOUNDS` 加經緯度範圍，再到三個語系檔加 `region.<代碼>`。
 
 ## 已知限制
+
+- OpenStreetMap 改用 Nominatim 備援時，每種類型最多 40 個地點，選特定料理（例如拉麵）時可能找不到；Overpass 恢復後就會正常。
+- OpenStreetMap 的營業時間只支援常見寫法，看不懂的（月份、日出日落等）當作「沒有資料」。
 
 - **交通時間是估算的**，不是實際路線時間；大眾運輸的誤差最大。實際時間請以導航為準。
 - 候選池大約 20–60 個地點，不是半徑內的所有店家。
@@ -123,7 +144,8 @@ js/
   picker.js             篩選與隨機抽選
   storage.js            localStorage
   providers/google.js   Google Places 資料來源
-  providers/demo.js     示範資料
+  providers/osm.js      OpenStreetMap 資料來源（Overpass、Nominatim）
+  providers/osm-hours.js OpenStreetMap 營業時間格式解析
 tests/                  單元測試（node --test）
 scripts/serve.mjs       開發用伺服器
 ```

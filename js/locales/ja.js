@@ -6,7 +6,7 @@ export default {
   'app.description': '現在地・移動手段・所要時間・営業時間から、食べる場所や遊びに行く場所をランダムに決めます。',
 
   'settings.open': '設定',
-  'banner.demo': '現在はデモデータ（架空のお店）です。{link}で Google API キーを入力すると、実在の場所に切り替わります。',
+  'banner.osm': '無料の OpenStreetMap データを使用中です。お店は実在しますが、営業時間や評価がない場所も多いです。{link}で Google API キーを入力すると、より詳しいデータに切り替わります。',
   'banner.link': '設定',
 
   'mode.label': 'モード',
@@ -23,7 +23,6 @@ export default {
   'origin.set': '設定',
   'origin.changed': '出発地を「{label}」に変更しました',
   'origin.notFound': '場所が見つかりませんでした。別の言い方で試してください',
-  'origin.demoOnly': 'デモモードで使える地名：{places}',
   'origin.unsupported': 'このブラウザは位置情報に対応していません。地名を入力してください',
   'origin.denied': '位置情報が許可されていません。許可するか、地名を入力してください',
   'origin.failed': '位置情報を取得できませんでした。地名を入力してください',
@@ -101,14 +100,12 @@ export default {
 
   'history.title': '最近の結果',
   'history.clear': 'クリア',
-  'history.demo': '（デモ）',
 
   'go.food': '何食べるか決めて！',
   'go.trip': 'どこ行くか決めて！',
 
   'result.close': '閉じる',
   'result.loading': '近くを探しています…',
-  'result.loadingDemo': '近くを探しています（デモデータ）…',
   'result.spinning': '{n}件の中から抽選中…',
   'result.eyebrow.food': '今日はここで食べよう！',
   'result.eyebrow.trip': '今日はここに行こう！',
@@ -129,7 +126,7 @@ export default {
   'result.veto': '🙅 ここはパス',
   'result.vetoed': '「{name}」はパスしました',
   'result.foot': '条件に合う{n}件から抽選・{source}',
-  'result.sourceDemo': 'デモデータ（架空）',
+  'result.sourceOsm': 'データ提供：© OpenStreetMap 寄稿者',
   'result.sourceGoogle': 'データ提供：Google マップ',
 
   'hours.day': '{weekday}曜 {ranges}',
@@ -156,6 +153,9 @@ export default {
   'error.googleQuota': 'Google API の利用上限に達しました。しばらくしてから試すか、請求設定を確認してください。',
   'error.googleLoad': 'Google マップを読み込めませんでした。接続を確認してください。',
   'error.googleGeneric': 'Google 検索に失敗しました：{message}',
+  'error.osmBusy': 'OpenStreetMap のサーバーが混み合っています。数秒待ってからもう一度試してください。',
+  'error.osmNetwork': 'OpenStreetMap に接続できませんでした。接続を確認してください。',
+  'error.osmGeneric': 'OpenStreetMap の検索に失敗しました：{message}',
 
   'share.food': '今日は「{name}」で食べよう！',
   'share.trip': '今日は「{name}」に行こう！',
@@ -173,8 +173,8 @@ export default {
   'settings.apiKey': 'Google Maps API キー',
   'settings.apiKeyHint': 'キーはこの端末のブラウザにだけ保存されます。Google Cloud で Maps JavaScript API と Places API (New) を有効にし、キーを自分のサイトに制限してください。詳しくは README を参照してください。',
   'settings.save': '保存して再読み込み',
-  'settings.useDemo': 'デモデータを使う',
-  'settings.statusDemo': '使用中：デモデータ（架空のお店）',
+  'settings.useOsm': 'OpenStreetMap を使う（無料）',
+  'settings.statusOsm': '使用中：OpenStreetMap（無料・実在のお店）',
   'settings.statusGoogle': '使用中：Google Places（実データ）',
   'settings.statusGoogleConfig': '使用中：Google Places（実データ）、キーは app-config.js から',
 

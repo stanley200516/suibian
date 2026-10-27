@@ -12,15 +12,15 @@ import { radiusKmForMinutes, randomPointInCircle } from './geo.js';
 import { closingTime, dayHours } from './hours.js';
 import { LANGS, createI18n, detectLang, detectUnits } from './i18n.js';
 import { filterCandidates, mergeUnique, pickRandom } from './picker.js';
-import { createDemoProvider } from './providers/demo.js';
 import { createGoogleProvider } from './providers/google.js';
+import { createOsmProvider } from './providers/osm.js';
 import { REGIONS, TRAVEL_IDS, categoriesFor, detectRegion, guessRegionFromTimezone, isCategoryId } from './regions.js';
 import * as store from './storage.js';
 
 const $ = (id) => document.getElementById(id);
 const els = {
   modeButtons: document.querySelectorAll('.mode-switch button'),
-  demoBanner: $('demoBanner'),
+  dataBanner: $('dataBanner'),
   originDot: $('originDot'),
   originLabel: $('originLabel'),
   locateBtn: $('locateBtn'),
@@ -38,6 +38,7 @@ const els = {
   includeUnknown: $('includeUnknown'),
   catTitle: $('catTitle'),
   catChips: $('catChips'),
+  ratingCard: $('ratingCard'),
   ratingChips: $('ratingChips'),
   historyCard: $('historyCard'),
   historyList: $('historyList'),
@@ -79,16 +80,19 @@ const { t } = i18n;
 
 const userKey = store.load('apiKey', '');
 const apiKey = userKey || GOOGLE_MAPS_API_KEY;
+// 有 Google key 用 Google，沒有就用免費的 OpenStreetMap
 const provider = apiKey
   ? createGoogleProvider(apiKey, { language: i18n.googleLang })
-  : createDemoProvider({ lang: i18n.lang });
+  : createOsmProvider({ lang: i18n.lang });
+const SOURCE_KEYS = { google: 'result.sourceGoogle', osm: 'result.sourceOsm' };
 
 const state = {
   mode: APP_MODES[store.load('mode', 'food')] ? store.load('mode', 'food') : 'food',
   prefs: loadPrefs(),
   origin: null, // { lat, lng, label }
   excluded: new Set(), // 這次使用中按過「不要這間」的
-  history: store.load('history', []),
+  // 舊版示範資料的虛構地點不再顯示
+  history: store.load('history', []).filter((h) => !h.demo),
   busy: false,
 };
 const poolCache = new Map();
@@ -230,9 +234,11 @@ function applyStaticText() {
   for (const el of document.querySelectorAll('[data-i18n-aria-label]')) el.setAttribute('aria-label', t(el.dataset.i18nAriaLabel));
 
   // 橫幅中間夾著「設定」按鈕
-  const [before, after = ''] = t('banner.demo').split('{link}');
-  els.demoBanner.innerHTML = `${esc(before)}<button type="button" class="link-btn" data-open-settings>${esc(t('banner.link'))}</button>${esc(after)}`;
-  els.demoBanner.hidden = !provider.isDemo;
+  const [before, after = ''] = t('banner.osm').split('{link}');
+  els.dataBanner.innerHTML = `${esc(before)}<button type="button" class="link-btn" data-open-settings>${esc(t('banner.link'))}</button>${esc(after)}`;
+  els.dataBanner.hidden = provider.id !== 'osm';
+  // OpenStreetMap 沒有評分，評分條件用不到
+  els.ratingCard.hidden = !provider.hasRatings;
 }
 
 // ---------- 畫面：條件 ----------
@@ -326,7 +332,7 @@ function renderHistory() {
   els.historyList.innerHTML = items
     .map(
       (h) => `<li><a href="${esc(h.url)}" target="_blank" rel="noopener">
-        <span>${APP_MODES[h.mode]?.icon ?? ''} ${esc(h.name)}${h.demo ? esc(t('history.demo')) : ''}</span>
+        <span>${APP_MODES[h.mode]?.icon ?? ''} ${esc(h.name)}</span>
         <small>${esc(i18n.formatShort(new Date(h.at)))}</small></a></li>`,
     )
     .join('');
@@ -376,11 +382,7 @@ async function setOriginFromText(text) {
     const hit = await provider.geocode(text, { near: state.origin, regionCode: region().google });
     if (!hit) {
       renderOrigin();
-      toast(
-        provider.isDemo
-          ? t('origin.demoOnly', { places: provider.knownPlaces.join(t('hours.joiner')) })
-          : t('origin.notFound'),
-      );
+      toast(t('origin.notFound'));
       return;
     }
     els.originInput.value = '';
@@ -395,6 +397,23 @@ async function setOriginFromText(text) {
 
 // ---------- 搜尋與抽選 ----------
 
+/** 要搜尋哪些範圍 */
+function searchPlan(origin, radiusKm) {
+  const mode = APP_MODES[state.mode];
+  if (!provider.resultLimit) {
+    // 一次就能拿到範圍內所有地點；範圍太大時隨機取其中一塊，避免查詢太重
+    const r = Math.min(radiusKm, mode.openDataRadiusKm);
+    const center = radiusKm > r ? randomPointInCircle(origin, radiusKm - r) : origin;
+    return [{ center, radiusKm: r, rankBy: 'popularity' }];
+  }
+  // 每次最多拿 20 筆：用不同排序和子區域多查幾輪
+  return mode.rounds.map((round) =>
+    round.area === 'sub'
+      ? { center: randomPointInCircle(origin, radiusKm * 0.5), radiusKm: radiusKm * 0.5, rankBy: round.rankBy }
+      : { center: origin, radiusKm, rankBy: round.rankBy },
+  );
+}
+
 /** 同一組條件只搜尋一次，10 分鐘內重抽都用快取 */
 async function getPool({ origin, radiusKm, types }) {
   const code = regionCode();
@@ -402,18 +421,16 @@ async function getPool({ origin, radiusKm, types }) {
   const hit = poolCache.get(key);
   if (hit && Date.now() - hit.at < POOL_TTL_MS) return hit.places;
 
-  const radiusM = radiusKm * 1000;
-  const searches = APP_MODES[state.mode].rounds.map((round) => {
-    const sub = round.area === 'sub';
-    return provider.searchNearby({
-      center: sub ? randomPointInCircle(origin, radiusKm * 0.5) : origin,
-      radiusM: sub ? radiusM * 0.5 : radiusM,
+  const searches = searchPlan(origin, radiusKm).map((s) =>
+    provider.searchNearby({
+      center: s.center,
+      radiusM: s.radiusKm * 1000,
       types,
-      rankBy: round.rankBy,
+      rankBy: s.rankBy,
       origin,
       regionCode: REGIONS[code].google,
-    });
-  });
+    }),
+  );
   const settled = await Promise.allSettled(searches);
   const ok = settled.filter((s) => s.status === 'fulfilled').map((s) => s.value);
   if (!ok.length) throw settled[0].reason;
@@ -453,7 +470,7 @@ async function decide() {
       return;
     }
 
-    renderLoading(t(provider.isDemo ? 'result.loadingDemo' : 'result.loading'));
+    renderLoading(t('result.loading'));
     const places = await getPool({ origin: state.origin, radiusKm, types: selectedTypes() });
 
     const when = { type: p.when, at: p.when === 'at' && p.at ? new Date(p.at) : null };
@@ -464,8 +481,8 @@ async function decide() {
       when,
       stayMin: mode.stayMin,
       includeUnknownHours: p.includeUnknown,
-      minRating: p.minRating,
-      minReviews: mode.minReviews,
+      minRating: provider.hasRatings ? p.minRating : 0,
+      minReviews: provider.hasRatings ? mode.minReviews : 0,
       excludeIds: state.excluded,
     });
 
@@ -494,7 +511,7 @@ function emptyTips(p, foundCount) {
   if (foundCount === 0) tips.push(t('empty.noneOfType'));
   else if (!anyOnly) tips.push(t('empty.anyCategory'));
   tips.push(t('empty.longer'));
-  if (p.minRating > 0) tips.push(t('empty.rating'));
+  if (provider.hasRatings && p.minRating > 0) tips.push(t('empty.rating'));
   if (p.when !== 'any') {
     tips.push(t('empty.hours', { min: APP_MODES[state.mode].stayMin }));
     if (!p.includeUnknown) tips.push(t('empty.unknown'));
@@ -527,7 +544,6 @@ function addHistory(pick) {
     mode: state.mode,
     at: new Date().toISOString(),
     url: provider.mapsUrl(pick),
-    demo: provider.isDemo,
   });
   state.history = state.history.slice(0, 30);
   store.save('history', state.history);
@@ -578,7 +594,7 @@ function renderResult(pick, total, when) {
   const meta = [pick.typeLabel, price].filter(Boolean).join(' · ');
   const hours = hoursFact(pick, when);
   const eta = t('result.eta', { mode: t(`travel.${id}`), min: pick.etaMin, distance: i18n.formatDistance(pick.distKm) });
-  const source = t(provider.isDemo ? 'result.sourceDemo' : 'result.sourceGoogle');
+  const source = t(SOURCE_KEYS[provider.id]);
 
   els.resultBody.innerHTML = `
     <article class="result">
@@ -650,6 +666,12 @@ function errorMessage(err) {
       return t('error.googleLoad');
     case 'generic':
       return t('error.googleGeneric', { message: err.detail });
+    case 'osm-busy':
+      return t('error.osmBusy');
+    case 'osm-network':
+      return t('error.osmNetwork');
+    case 'osm-generic':
+      return t('error.osmGeneric', { message: err.detail });
     default:
       return err?.message ?? String(err);
   }
@@ -706,7 +728,7 @@ function openSettings() {
 
   els.apiKeyInput.value = userKey;
   els.providerStatus.textContent = t(
-    provider.isDemo ? 'settings.statusDemo' : userKey ? 'settings.statusGoogle' : 'settings.statusGoogleConfig',
+    provider.id === 'osm' ? 'settings.statusOsm' : userKey ? 'settings.statusGoogle' : 'settings.statusGoogleConfig',
   );
   openSheet(els.settingsDialog);
 }
@@ -786,7 +808,7 @@ function bindEvents() {
   });
 
   els.settingsBtn.addEventListener('click', openSettings);
-  els.demoBanner.addEventListener('click', (e) => {
+  els.dataBanner.addEventListener('click', (e) => {
     if (e.target.closest('[data-open-settings]')) openSettings();
   });
   els.settingsForm.addEventListener('submit', (e) => {

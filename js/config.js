@@ -11,6 +11,8 @@ export const APP_MODES = {
     stayMin: 30,
     includeUnknownHours: false,
     minReviews: 0,
+    // 開放資料（OpenStreetMap）一次查詢的最大半徑；範圍更大時隨機取其中一塊
+    openDataRadiusKm: 3,
     // 每次建立候選清單時的搜尋輪次（每輪最多 20 筆），用不同排序／子區域增加多樣性
     rounds: [
       { area: 'full', rankBy: 'popularity' },
@@ -26,6 +28,7 @@ export const APP_MODES = {
     includeUnknownHours: true,
     // 過濾掉評論太少的小公園、冷門點
     minReviews: 30,
+    openDataRadiusKm: 30,
     rounds: [
       { area: 'full', rankBy: 'popularity' },
       { area: 'sub', rankBy: 'popularity' },

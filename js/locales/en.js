@@ -6,7 +6,7 @@ export default {
   'app.description': 'Picks a random place to eat or visit based on your location, how you get around, travel time and opening hours.',
 
   'settings.open': 'Settings',
-  'banner.demo': "You're viewing demo data (fictional places). Add a Google API key in {link} to see real places.",
+  'banner.osm': 'Using free OpenStreetMap data: places are real, but many lack opening hours and ratings. Add a Google API key in {link} for richer data.',
   'banner.link': 'Settings',
 
   'mode.label': 'Mode',
@@ -23,7 +23,6 @@ export default {
   'origin.set': 'Set',
   'origin.changed': 'Starting from {label}',
   'origin.notFound': "Couldn't find that place. Try another name.",
-  'origin.demoOnly': 'Demo mode only knows: {places}',
   'origin.unsupported': "This browser can't get your location. Please enter a place.",
   'origin.denied': 'Location access is off. Allow it or enter a place.',
   'origin.failed': "Couldn't get your location. Please enter a place.",
@@ -101,14 +100,12 @@ export default {
 
   'history.title': 'Recent picks',
   'history.clear': 'Clear',
-  'history.demo': ' (demo)',
 
   'go.food': 'Pick where to eat!',
   'go.trip': 'Pick where to go!',
 
   'result.close': 'Close',
   'result.loading': 'Looking nearby…',
-  'result.loadingDemo': 'Looking nearby (demo data)…',
   'result.spinning': 'Picking one of {n} places…',
   'result.eyebrow.food': "Today you're eating here!",
   'result.eyebrow.trip': "Today you're going here!",
@@ -129,7 +126,7 @@ export default {
   'result.veto': '🙅 Not this one',
   'result.vetoed': 'OK, skipping {name}',
   'result.foot': 'Picked from {n} matching places · {source}',
-  'result.sourceDemo': 'Demo data (fictional)',
+  'result.sourceOsm': 'Data: © OpenStreetMap contributors',
   'result.sourceGoogle': 'Data: Google Maps',
 
   'hours.day': '{weekday} {ranges}',
@@ -156,6 +153,9 @@ export default {
   'error.googleQuota': 'Google API quota reached. Try again later or check your billing settings.',
   'error.googleLoad': "Couldn't load Google Maps. Check your connection.",
   'error.googleGeneric': 'Google search failed: {message}',
+  'error.osmBusy': 'The OpenStreetMap server is busy. Wait a few seconds and try again.',
+  'error.osmNetwork': "Couldn't reach OpenStreetMap. Check your connection.",
+  'error.osmGeneric': 'OpenStreetMap search failed: {message}',
 
   'share.food': "Let's eat at {name} today!",
   'share.trip': "Let's go to {name} today!",
@@ -173,8 +173,8 @@ export default {
   'settings.apiKey': 'Google Maps API key',
   'settings.apiKeyHint': 'The key is stored only in this browser. Enable Maps JavaScript API and Places API (New) in Google Cloud and restrict the key to your site. See the README for details.',
   'settings.save': 'Save & reload',
-  'settings.useDemo': 'Use demo data',
-  'settings.statusDemo': 'Using: demo data (fictional places)',
+  'settings.useOsm': 'Use OpenStreetMap (free)',
+  'settings.statusOsm': 'Using: OpenStreetMap (free, real places)',
   'settings.statusGoogle': 'Using: Google Places (real data)',
   'settings.statusGoogleConfig': 'Using: Google Places (real data), key from app-config.js',
 

@@ -57,7 +57,7 @@ test('detectUnits：美國、英國用英里', () => {
 test('t：插入值與缺 key 時的退路', () => {
   const { t } = createI18n({ lang: 'zh-TW' });
   assert.equal(t('result.vetoed', { name: '阿嬤牛肉麵' }), '好，不去「阿嬤牛肉麵」');
-  assert.equal(t('banner.demo').includes('{link}'), true, '沒給的插入值保留原樣');
+  assert.equal(t('banner.osm').includes('{link}'), true, '沒給的插入值保留原樣');
   assert.equal(t('no.such.key'), 'no.such.key');
 });
 

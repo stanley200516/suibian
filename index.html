@@ -34,7 +34,7 @@
         </button>
       </header>
 
-      <p id="demoBanner" class="banner" hidden></p>
+      <p id="dataBanner" class="banner" hidden></p>
 
       <div class="mode-switch" role="group" aria-label="模式" data-i18n-aria-label="mode.label">
         <button type="button" data-mode="food" aria-pressed="true"><span aria-hidden="true">🍜</span> <span data-i18n="mode.food">吃什麼</span></button>
@@ -99,7 +99,7 @@
           <div id="catChips" class="chips" role="group" aria-labelledby="catTitle"></div>
         </section>
 
-        <section class="card">
+        <section id="ratingCard" class="card">
           <h2 data-i18n="rating.title">Google 評分</h2>
           <div id="ratingChips" class="chips" role="radiogroup" aria-label="Google 評分" data-i18n-aria-label="rating.title"></div>
         </section>
@@ -151,7 +151,7 @@
         <p class="hint" data-i18n="settings.apiKeyHint"></p>
         <div class="row">
           <button type="submit" class="cta small" data-i18n="settings.save">儲存並重新載入</button>
-          <button id="clearKeyBtn" type="button" class="btn-ghost" data-i18n="settings.useDemo">改用示範資料</button>
+          <button id="clearKeyBtn" type="button" class="btn-ghost" data-i18n="settings.useOsm">改用 OpenStreetMap（免費）</button>
         </div>
         <p id="providerStatus" class="hint"></p>
       </form>
